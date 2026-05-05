@@ -2,18 +2,10 @@ import * as vscode from 'vscode';
 import { Foam } from '@foam/core';
 import { Logger } from '@foam/core';
 import { getFoamVsCodeConfig } from '../../config';
-import {
-  fromVsCodeUri,
-  toVsCodeRange,
-  toVsCodeUri,
-} from '../../utils/vsc-utils';
-import {
-  computeWikilinkRenameEdits,
-  computeDirectoryWikilinkRenameEdits,
-} from '@foam/core';
+import { fromVsCodeUri, toVsCodeRange, toVsCodeUri } from '../../utils/vsc-utils';
+import { computeWikilinkRenameEdits, computeDirectoryWikilinkRenameEdits } from '@foam/core';
 
-const MARKDOWN_LINK_NOTIFICATION_KEY =
-  'foam.links.sync.markdownLinkNotificationShown';
+const MARKDOWN_LINK_NOTIFICATION_KEY = 'foam.links.sync.markdownLinkNotificationShown';
 
 export default async function activate(
   context: vscode.ExtensionContext,
@@ -33,29 +25,14 @@ export default async function activate(
         const foamNewUri = fromVsCodeUri(newUri);
 
         const isDirectory =
-          (await vscode.workspace.fs.stat(oldUri)).type ===
-          vscode.FileType.Directory;
+          (await vscode.workspace.fs.stat(oldUri)).type === vscode.FileType.Directory;
 
         const wikilinkEdits = isDirectory
-          ? computeDirectoryWikilinkRenameEdits(
-              foam.workspace,
-              foam.graph,
-              foamOldUri,
-              foamNewUri
-            )
-          : computeWikilinkRenameEdits(
-              foam.workspace,
-              foam.graph,
-              foamOldUri,
-              foamNewUri
-            );
+          ? computeDirectoryWikilinkRenameEdits(foam.workspace, foam.graph, foamOldUri, foamNewUri)
+          : computeWikilinkRenameEdits(foam.workspace, foam.graph, foamOldUri, foamNewUri);
 
         for (const { uri, edit } of wikilinkEdits) {
-          renameEdits.replace(
-            toVsCodeUri(uri),
-            toVsCodeRange(edit.range),
-            edit.newText
-          );
+          renameEdits.replace(toVsCodeUri(uri), toVsCodeRange(edit.range), edit.newText);
         }
 
         // For directory renames, remove stale workspace entries for files under
@@ -73,11 +50,7 @@ export default async function activate(
         }
 
         if (!isDirectory) {
-          if (
-            foam.graph
-              .getBacklinks(foamOldUri)
-              .some(c => c.link.type === 'link')
-          ) {
+          if (foam.graph.getBacklinks(foamOldUri).some(c => c.link.type === 'link')) {
             hasMarkdownBacklinks = true;
           }
         }
@@ -101,51 +74,41 @@ export default async function activate(
           const nUpdates = renameEdits.entries().reduce((acc, entry) => {
             return (acc += entry[1].length);
           }, 0);
-          const links = nUpdates > 1 ? 'links' : 'link';
           const nFiles = renameEdits.size;
-          const files = nFiles > 1 ? 'files' : 'file';
+          const files = nFiles > 1 ? 'arquivos' : 'arquivo';
           Logger.info(
-            `Updated links in the following files:`,
-            ...renameEdits
-              .entries()
-              .map(e => vscode.workspace.asRelativePath(e[0]))
+            `Links atualizados nos seguintes arquivos:`,
+            ...renameEdits.entries().map(e => vscode.workspace.asRelativePath(e[0]))
           );
           vscode.window.showInformationMessage(
-            `Updated ${nUpdates} ${links} across ${nFiles} ${files}.`
+            `Atualizados ${nUpdates} ${nUpdates === 1 ? 'link' : 'links'} em ${nFiles} ${files}.`
           );
         }
       } catch (e) {
         Logger.error('Error while updating references to file', e);
         vscode.window.showErrorMessage(
-          `Foam couldn't update the links to ${vscode.workspace.asRelativePath(
+          `Foam não conseguiu atualizar os links para ${vscode.workspace.asRelativePath(
             e.newUri
-          )}. Check the logs for error details.`
+          )}. Verifique os logs para detalhes do erro.`
         );
       }
 
       // On the first rename where there are markdown backlinks, nudge the user
       // to enable VS Code's built-in markdown link update setting if they haven't already.
-      if (
-        hasMarkdownBacklinks &&
-        !context.globalState.get(MARKDOWN_LINK_NOTIFICATION_KEY)
-      ) {
+      if (hasMarkdownBacklinks && !context.globalState.get(MARKDOWN_LINK_NOTIFICATION_KEY)) {
         const vsCodeMarkdownSetting = vscode.workspace
           .getConfiguration('markdown')
           .get<string>('updateLinksOnFileMove.enabled', 'never');
         if (vsCodeMarkdownSetting === 'never') {
           const choice = await vscode.window.showInformationMessage(
-            "Foam updated your wikilinks. To also update standard markdown links on rename, enable VS Code's built-in setting.",
-            'Enable',
-            'Dismiss'
+            'Foam atualizou seus wikilinks. Para atualizar também links markdown padrão ao renomear, habilite a configuração nativa do VS Code.',
+            'Habilitar',
+            'Ignorar'
           );
-          if (choice === 'Enable') {
+          if (choice === 'Habilitar') {
             await vscode.workspace
               .getConfiguration('markdown')
-              .update(
-                'updateLinksOnFileMove.enabled',
-                'always',
-                vscode.ConfigurationTarget.Global
-              );
+              .update('updateLinksOnFileMove.enabled', 'always', vscode.ConfigurationTarget.Global);
           }
         }
         await context.globalState.update(MARKDOWN_LINK_NOTIFICATION_KEY, true);

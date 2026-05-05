@@ -1,8 +1,5 @@
 import { Logger } from '@foam/core';
-import {
-  OllamaEmbeddingProvider,
-  DEFAULT_OLLAMA_CONFIG,
-} from './ollama-provider';
+import { OllamaEmbeddingProvider, DEFAULT_OLLAMA_CONFIG } from './ollama-provider';
 
 Logger.setLevel('error');
 
@@ -50,7 +47,7 @@ describe('OllamaEmbeddingProvider', () => {
       expect(info.model.name).toBe('nomic-embed-text');
       expect(info.model.dimensions).toBe(768);
       expect(info.endpoint).toBe('http://localhost:11434');
-      expect(info.description).toBe('Local embedding provider using Ollama');
+      expect(info.description).toBe('Provedor local de embeddings usando Ollama');
       expect(info.metadata).toEqual({ timeout: 30000 });
     });
 
@@ -107,21 +104,15 @@ describe('OllamaEmbeddingProvider', () => {
 
       const provider = new OllamaEmbeddingProvider();
 
-      await expect(provider.embed('test')).rejects.toThrow(
-        'AI service error (500)'
-      );
+      await expect(provider.embed('test')).rejects.toThrow('Erro no serviço de IA (500)');
     });
 
     it('should throw error on connection refused', async () => {
-      (global.fetch as any).mockRejectedValueOnce(
-        new Error('fetch failed')
-      );
+      (global.fetch as any).mockRejectedValueOnce(new Error('fetch failed'));
 
       const provider = new OllamaEmbeddingProvider();
 
-      await expect(provider.embed('test')).rejects.toThrow(
-        'Cannot connect to Ollama'
-      );
+      await expect(provider.embed('test')).rejects.toThrow('Não foi possível conectar ao Ollama');
     });
 
     it('should timeout after configured duration', async () => {
@@ -143,7 +134,7 @@ describe('OllamaEmbeddingProvider', () => {
       // Fast-forward time to trigger timeout
       vi.advanceTimersByTime(1001);
 
-      await expect(embedPromise).rejects.toThrow('AI service took too long');
+      await expect(embedPromise).rejects.toThrow('O serviço de IA demorou muito');
     });
   });
 
@@ -166,9 +157,7 @@ describe('OllamaEmbeddingProvider', () => {
     });
 
     it('should return false when Ollama is not available', async () => {
-      (global.fetch as any).mockRejectedValueOnce(
-        new Error('Connection refused')
-      );
+      (global.fetch as any).mockRejectedValueOnce(new Error('Connection refused'));
 
       const provider = new OllamaEmbeddingProvider();
       const result = await provider.isAvailable();
@@ -271,24 +260,19 @@ describe('OllamaEmbeddingProvider - Integration', () => {
     expect(embedding.length).toBeGreaterThanOrEqual(0);
   });
 
-  it.each([10, 50, 60, 100, 300])(
-    'should handle text of various lengths',
-    async length => {
-      if (!(await provider.isAvailable())) {
-        console.warn('Ollama is not available, skipping test');
-        return;
-      }
-      const text = 'Lorem ipsum dolor sit amet. '.repeat(length);
-      try {
-        const embedding = await provider.embed(text);
-        expect(embedding).toBeDefined();
-        expect(Array.isArray(embedding)).toBe(true);
-        expect(embedding.length).toBe(768);
-      } catch (error) {
-        throw new Error(
-          `Embedding failed for text of length ${text.length}: ${error}`
-        );
-      }
+  it.each([10, 50, 60, 100, 300])('should handle text of various lengths', async length => {
+    if (!(await provider.isAvailable())) {
+      console.warn('Ollama is not available, skipping test');
+      return;
     }
-  );
+    const text = 'Lorem ipsum dolor sit amet. '.repeat(length);
+    try {
+      const embedding = await provider.embed(text);
+      expect(embedding).toBeDefined();
+      expect(Array.isArray(embedding)).toBe(true);
+      expect(embedding.length).toBe(768);
+    } catch (error) {
+      throw new Error(`Embedding failed for text of length ${text.length}: ${error}`);
+    }
+  });
 });

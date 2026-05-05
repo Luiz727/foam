@@ -223,9 +223,16 @@ export function getGraphStyle(): GraphStyle {
 }
 
 export function viewConfigToStyle(config: GraphViewConfig): GraphStyle {
+  const showEntries = config.show
+    ? (Object.entries(config.show) as Array<[
+        string,
+        { enabled?: boolean; color?: string }
+      ]>)
+    : undefined;
+
   const nodeColors = config.show
     ? Object.fromEntries(
-        Object.entries(config.show)
+        showEntries!
           .filter(([, cfg]) => cfg.color)
           .map(([type, cfg]) => [type, cfg.color!])
       )
@@ -233,7 +240,7 @@ export function viewConfigToStyle(config: GraphViewConfig): GraphStyle {
 
   const showNodesOfType = config.show
     ? Object.fromEntries(
-        Object.entries(config.show).map(([type, cfg]) => [
+        showEntries!.map(([type, cfg]) => [
           type,
           cfg.enabled ?? true,
         ])

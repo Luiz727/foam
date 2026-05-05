@@ -47,15 +47,11 @@ async function convertWikilinkToMarkdown(foam: Foam): Promise<void> {
     // Re-parse from current text to handle dirty editor state
     const resource = foam.services.parser.parse(documentUri, document.getText());
     const targetLink = resource.links.find(
-      link =>
-        link.type === 'wikilink' &&
-        Range.containsPosition(link.range, foamPosition)
+      link => link.type === 'wikilink' && Range.containsPosition(link.range, foamPosition)
     );
 
     if (!targetLink) {
-      vscode.window.showInformationMessage(
-        'No wikilink found at cursor position'
-      );
+      vscode.window.showInformationMessage('Nenhum wikilink encontrado na posição do cursor');
       return;
     }
 
@@ -88,15 +84,12 @@ async function convertWikilinkToMarkdown(foam: Foam): Promise<void> {
         range.start.line,
         range.start.character + edit.newText.length
       );
-      activeEditor.selection = new vscode.Selection(
-        newEndPosition,
-        newEndPosition
-      );
+      activeEditor.selection = new vscode.Selection(newEndPosition, newEndPosition);
     }
   } catch (error) {
     Logger.error('Failed to convert wikilink to markdown link', error);
     vscode.window.showErrorMessage(
-      `Failed to convert wikilink to markdown link: ${error.message}`
+      `Falha ao converter wikilink para link markdown: ${error.message}`
     );
   }
 }
@@ -116,23 +109,17 @@ async function convertMarkdownToWikilink(foam: Foam): Promise<void> {
     // Re-parse from current text to handle dirty editor state
     const resource = foam.services.parser.parse(documentUri, document.getText());
     const targetLink = resource.links.find(
-      link =>
-        link.type === 'link' &&
-        Range.containsPosition(link.range, foamPosition)
+      link => link.type === 'link' && Range.containsPosition(link.range, foamPosition)
     );
 
     if (!targetLink) {
-      vscode.window.showInformationMessage(
-        'No markdown link found at cursor position'
-      );
+      vscode.window.showInformationMessage('Nenhum link markdown encontrado na posição do cursor');
       return;
     }
 
     const linkInfo = MarkdownLink.analyzeLink(targetLink);
     // resolveLink may embed the section as a URI fragment; strip it to get the resource URI
-    const targetUri = foam.workspace
-      .resolveLink(resource, targetLink)
-      .asPlain();
+    const targetUri = foam.workspace.resolveLink(resource, targetLink).asPlain();
     const targetResource = foam.workspace.get(targetUri);
 
     if (!targetResource) {
@@ -143,8 +130,7 @@ async function convertMarkdownToWikilink(foam: Foam): Promise<void> {
     const defaultAlias = linkInfo.section
       ? `${targetResource.title}#${linkInfo.section}`
       : targetResource.title;
-    const alias =
-      linkInfo.alias && linkInfo.alias !== defaultAlias ? linkInfo.alias : '';
+    const alias = linkInfo.alias && linkInfo.alias !== defaultAlias ? linkInfo.alias : '';
 
     const edit = MarkdownLink.createUpdateLinkEdit(targetLink, {
       type: 'wikilink',
@@ -162,15 +148,12 @@ async function convertMarkdownToWikilink(foam: Foam): Promise<void> {
         range.start.line,
         range.start.character + edit.newText.length
       );
-      activeEditor.selection = new vscode.Selection(
-        newEndPosition,
-        newEndPosition
-      );
+      activeEditor.selection = new vscode.Selection(newEndPosition, newEndPosition);
     }
   } catch (error) {
     Logger.error('Failed to convert markdown link to wikilink', error);
     vscode.window.showErrorMessage(
-      `Failed to convert markdown link to wikilink: ${error.message}`
+      `Falha ao converter link markdown para wikilink: ${error.message}`
     );
   }
 }

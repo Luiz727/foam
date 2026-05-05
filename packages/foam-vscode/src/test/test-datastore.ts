@@ -26,10 +26,7 @@ function getFilesFromDir(files: string[], directory: string) {
  * File system based data store
  */
 export class FileDataStore implements IDataStore {
-  constructor(
-    private readFile: (uri: URI) => Promise<string>,
-    private readonly basedir: string
-  ) {}
+  constructor(private readFile: (uri: URI) => Promise<string>, private readonly basedir: string) {}
 
   async list(): Promise<URI[]> {
     const res = getFiles(this.basedir);
@@ -40,9 +37,7 @@ export class FileDataStore implements IDataStore {
     try {
       return await this.readFile(uri);
     } catch (e) {
-      Logger.error(
-        `FileDataStore: error while reading uri: ${uri.path} - ${e}`
-      );
+      Logger.error(`FileDataStore: error while reading uri: ${uri.path} - ${e}`);
       return null;
     }
   }
@@ -54,31 +49,29 @@ export class FileDataStore implements IDataStore {
  */
 export const toMatcherPathFormat = isWindows
   ? (uri: URI) => uri.toFsPath().replace(/\\/g, '/')
-  : (uri: URI) => uri.toFsPath();
+  : (uri: URI) => uri.toFsPath().replace(/\\/g, '/');
 
 export const toFsPath = isWindows
   ? (path: string): string => path.replace(/\//g, '\\')
   : (path: string): string => path;
+
+const normalizeMatcherPath = (value: string): string => value.replace(/\\/g, '/');
 
 export class Matcher implements IMatcher {
   public readonly folders: string[];
   public readonly include: string[] = [];
   public readonly exclude: string[] = [];
 
-  constructor(
-    baseFolders: URI[],
-    includeGlobs: string[] = ['**/*'],
-    excludeGlobs: string[] = []
-  ) {
+  constructor(baseFolders: URI[], includeGlobs: string[] = ['**/*'], excludeGlobs: string[] = []) {
     this.folders = baseFolders.map(toMatcherPathFormat);
     Logger.info('Workspace folders: ', this.folders);
 
-    this.include = includeGlobs.flatMap(glob =>
-      asAbsolutePaths(glob, this.folders)
-    );
-    this.exclude = excludeGlobs.flatMap(glob =>
-      asAbsolutePaths(glob, this.folders)
-    );
+    this.include = includeGlobs
+      .flatMap(glob => asAbsolutePaths(glob, this.folders))
+      .map(normalizeMatcherPath);
+    this.exclude = excludeGlobs
+      .flatMap(glob => asAbsolutePaths(glob, this.folders))
+      .map(normalizeMatcherPath);
 
     Logger.info('Glob patterns', {
       includeGlobs: this.include,
@@ -87,15 +80,11 @@ export class Matcher implements IMatcher {
   }
 
   match(files: URI[]) {
-    const matches = micromatch(
-      files.map(f => f.toFsPath()),
-      this.include,
-      {
-        ignore: this.exclude,
-        nocase: true,
-        format: toFsPath,
-      }
-    );
+    const candidatePaths = files.map(toMatcherPathFormat);
+    const matches = micromatch(candidatePaths, this.include, {
+      ignore: this.exclude,
+      nocase: true,
+    });
     return matches.map(URI.file);
   }
 

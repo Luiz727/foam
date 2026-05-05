@@ -24,9 +24,7 @@ export function computeContentHash(content: string): string {
  * Reads WHATS_NEW.md from the extension directory.
  * Returns undefined if the file does not exist.
  */
-export async function readWhatsNewFile(
-  extensionUri: Uri
-): Promise<string | undefined> {
+export async function readWhatsNewFile(extensionUri: Uri): Promise<string | undefined> {
   const fileUri = Uri.joinPath(extensionUri, 'WHATS_NEW.md');
   try {
     const bytes = await workspace.fs.readFile(fileUri);
@@ -43,9 +41,7 @@ export async function showWhatsNew(extensionUri: Uri) {
 
 export default async function activate(context: ExtensionContext) {
   context.subscriptions.push(
-    commands.registerCommand('foam-vscode.show-whats-new', () =>
-      showWhatsNew(context.extensionUri)
-    )
+    commands.registerCommand('foam-vscode.show-whats-new', () => showWhatsNew(context.extensionUri))
   );
 
   const content = await readWhatsNewFile(context.extensionUri);
@@ -62,14 +58,14 @@ export default async function activate(context: ExtensionContext) {
   await context.globalState.update(WHATS_NEW_LAST_SEEN_KEY, contentHash);
 
   const title = parseWhatsNewTitle(content);
-  const message = title ? `What's new in Foam: ${title}` : "What's new in Foam";
+  const message = title ? `Novidades no Foam: ${title}` : 'Novidades no Foam';
 
-  // Fire-and-forget: the notification must not block extension activation,
-  // because activate() is awaited by Promise.all in extension.ts.
-  // If we awaited here, the extension would never finish activating until
-  // the user clicks a button.
-  window.showInformationMessage(message, 'Show me', 'Dismiss').then(choice => {
-    if (choice === 'Show me') {
+  // Fire-and-forget: a notificação não deve bloquear a ativação da extensão,
+  // pois activate() é aguardado por Promise.all em extension.ts.
+  // Se aguardássemos aqui, a extensão nunca terminaria de ativar
+  // até o usuário clicar um botão.
+  window.showInformationMessage(message, 'Ver', 'Dispensar').then(choice => {
+    if (choice === 'Ver') {
       showWhatsNew(context.extensionUri);
     }
   });

@@ -54,8 +54,7 @@ export async function activate(context: ExtensionContext) {
     const defaultExtension = Config.getDefaultNoteExtension();
 
     const workspaceRoots =
-      workspace.workspaceFolders?.map(folder => fromVsCodeUri(folder.uri)) ??
-      [];
+      workspace.workspaceFolders?.map(folder => fromVsCodeUri(folder.uri)) ?? [];
 
     const directoryMode = Config.getLinksDirectoryMode();
     const markdownProvider = new MarkdownResourceProvider(
@@ -66,15 +65,34 @@ export async function activate(context: ExtensionContext) {
     );
 
     const attachmentExtConfig = Config.getAttachmentExtensions();
-    const attachmentProvider = new AttachmentResourceProvider(
-      attachmentExtConfig
-    );
+    const attachmentProvider = new AttachmentResourceProvider(attachmentExtConfig);
 
     // Initialize embedding provider
     const aiEnabled = workspace.getConfiguration('foam.experimental').get('ai');
-    const embeddingProvider = aiEnabled
-      ? new OllamaEmbeddingProvider()
-      : undefined;
+    let embeddingProvider: OllamaEmbeddingProvider | undefined;
+    if (aiEnabled) {
+      try {
+        embeddingProvider = new OllamaEmbeddingProvider();
+      } catch (error) {
+        Logger.warn(
+          `Não foi possível inicializar o provedor de IA: ${
+            error instanceof Error ? error.message : 'Erro desconhecido'
+          }`
+        );
+        window.showWarningMessage(
+          'A IA experimental não foi inicializada por causa da configuração do provedor. Verifique as configurações e tente novamente.'
+        );
+      }
+    }
+
+    // Aviso de privacidade: exibe uma vez quando a IA é habilitada pela primeira vez
+    const AI_PRIVACY_KEY = 'foam.ai.privacyNoticeShown';
+    if (aiEnabled && !context.globalState.get(AI_PRIVACY_KEY)) {
+      await context.globalState.update(AI_PRIVACY_KEY, true);
+      window.showInformationMessage(
+        'O Foam enviará o conteúdo das suas notas para o serviço de IA configurado. Certifique-se de que o serviço é confiável antes de continuar.'
+      );
+    }
 
     const foamPromise = bootstrap(
       workspaceRoots,
@@ -88,9 +106,7 @@ export async function activate(context: ExtensionContext) {
     );
 
     // Load the features
-    const featuresPromises = features.map(feature =>
-      feature(context, foamPromise)
-    );
+    const featuresPromises = features.map(feature => feature(context, foamPromise));
 
     const foam = await foamPromise;
     Logger.info(`Loaded ${foam.workspace.list().length} resources`);
@@ -100,9 +116,7 @@ export async function activate(context: ExtensionContext) {
       watcher,
       markdownProvider,
       attachmentProvider,
-      commands.registerCommand('foam-vscode.clear-cache', () =>
-        parserCache.clear()
-      ),
+      commands.registerCommand('foam-vscode.clear-cache', () => parserCache.clear()),
       workspace.onDidChangeConfiguration(e => {
         if (
           [
@@ -115,7 +129,7 @@ export async function activate(context: ExtensionContext) {
           ].some(setting => e.affectsConfiguration(setting))
         ) {
           window.showInformationMessage(
-            'Foam: Reload the window to use the updated settings'
+            'Foam: Recarregue a janela para usar as configurações atualizadas'
           );
         }
       })
@@ -132,9 +146,7 @@ export async function activate(context: ExtensionContext) {
       foam,
     };
   } catch (e) {
-    Logger.error('An error occurred while bootstrapping Foam', e);
-    window.showErrorMessage(
-      `An error occurred while bootstrapping Foam. ${e.stack}`
-    );
+    Logger.error('Ocorreu um erro ao inicializar o Foam', e);
+    window.showErrorMessage(`Ocorreu um erro ao inicializar o Foam. ${e.stack}`);
   }
 }

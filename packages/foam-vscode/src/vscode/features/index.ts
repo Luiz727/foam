@@ -9,6 +9,7 @@ import graphWebview from './graph-webview';
 import janitor from './janitor';
 import ai from './ai';
 import whatsNew from './whats-new';
+import promptWorkshop from './prompt-workshop';
 
 export const features: FoamFeature[] = [
   whatsNew,
@@ -21,4 +22,5 @@ export const features: FoamFeature[] = [
   graphWebview,
   janitor,
   ai,
+  promptWorkshop,
 ];

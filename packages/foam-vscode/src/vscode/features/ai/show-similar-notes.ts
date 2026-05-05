@@ -6,7 +6,7 @@ import { BUILD_EMBEDDINGS_COMMAND } from './build-embeddings';
 
 export const SHOW_SIMILAR_NOTES_COMMAND = {
   command: 'foam-vscode.show-similar-notes',
-  title: 'Foam: Show Similar Notes',
+  title: 'Foam: Mostrar Notas Similares',
 };
 
 export default async function activate(
@@ -16,12 +16,9 @@ export default async function activate(
   const foam = await foamPromise;
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      SHOW_SIMILAR_NOTES_COMMAND.command,
-      async () => {
-        await showSimilarNotes(foam);
-      }
-    )
+    vscode.commands.registerCommand(SHOW_SIMILAR_NOTES_COMMAND.command, async () => {
+      await showSimilarNotes(foam);
+    })
   );
 }
 
@@ -29,7 +26,7 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
   // Get the active editor
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
-    vscode.window.showInformationMessage('Please open a note first');
+    vscode.window.showInformationMessage('Abra uma nota primeiro');
     return;
   }
 
@@ -39,13 +36,14 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
   // Check if the resource exists in workspace
   const resource = foam.workspace.find(uri);
   if (!resource) {
-    vscode.window.showInformationMessage('This file is not a note');
+    vscode.window.showInformationMessage('Este arquivo não é uma nota');
     return;
   }
 
   // Ensure embeddings are up-to-date (incremental update)
-  const status: 'complete' | 'error' | 'cancelled' =
-    await vscode.commands.executeCommand(BUILD_EMBEDDINGS_COMMAND.command);
+  const status: 'complete' | 'error' | 'cancelled' = await vscode.commands.executeCommand(
+    BUILD_EMBEDDINGS_COMMAND.command
+  );
 
   if (status !== 'complete') {
     return;
@@ -55,7 +53,7 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
   const embedding = foam.embeddings.getEmbedding(uri);
   if (!embedding) {
     vscode.window.showInformationMessage(
-      'This note hasn\'t been analyzed yet. Make sure the AI service is running and try the "Analyze Notes with AI" command.'
+      'Esta nota ainda não foi analisada. Certifique-se de que o serviço de IA está rodando e tente o comando "Analisar Notas com IA".'
     );
     return;
   }
@@ -64,7 +62,7 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
   const similar = foam.embeddings.getSimilar(uri, 10);
 
   if (similar.length === 0) {
-    vscode.window.showInformationMessage('No similar notes found');
+    vscode.window.showInformationMessage('Nenhuma nota similar encontrada');
     return;
   }
 
@@ -76,7 +74,7 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
 
     return {
       label: `$(file) ${title}`,
-      description: `${similarityPercent}% similar`,
+      description: `${similarityPercent}% de similaridade`,
       detail: item.uri.toFsPath(),
       uri: item.uri,
     } as vscode.QuickPickItem & { uri: URI };
@@ -84,16 +82,14 @@ async function showSimilarNotes(foam: Foam): Promise<void> {
 
   // Show quick pick
   const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select a similar note to open',
+    placeHolder: 'Selecione uma nota similar para abrir',
     matchOnDescription: true,
     matchOnDetail: true,
   });
 
   if (selected) {
     const selectedUri = (selected as any).uri as URI;
-    const doc = await vscode.workspace.openTextDocument(
-      toVsCodeUri(selectedUri)
-    );
+    const doc = await vscode.workspace.openTextDocument(toVsCodeUri(selectedUri));
     await vscode.window.showTextDocument(doc);
   }
 }

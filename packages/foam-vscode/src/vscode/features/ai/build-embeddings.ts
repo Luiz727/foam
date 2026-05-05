@@ -7,7 +7,7 @@ import { FoamEmbeddings } from '../../../ai/model/embeddings';
 
 export const BUILD_EMBEDDINGS_COMMAND = {
   command: 'foam-vscode.build-embeddings',
-  title: 'Foam: Analyze Notes with AI',
+  title: 'Foam: Analisar Notas com IA',
 };
 
 export default async function activate(
@@ -16,24 +16,19 @@ export default async function activate(
 ) {
   const foam = await foamPromise;
   // Deduplicate concurrent executions
-  const deduplicator = new TaskDeduplicator<
-    'complete' | 'cancelled' | 'error'
-  >();
+  const deduplicator = new TaskDeduplicator<'complete' | 'cancelled' | 'error'>();
 
   context.subscriptions.push(
-    vscode.commands.registerCommand(
-      BUILD_EMBEDDINGS_COMMAND.command,
-      async () => {
-        return await deduplicator.run(
-          () => buildEmbeddings(foam.workspace, foam.embeddings),
-          () => {
-            vscode.window.showInformationMessage(
-              'Note analysis is already in progress - waiting for it to complete'
-            );
-          }
-        );
-      }
-    )
+    vscode.commands.registerCommand(BUILD_EMBEDDINGS_COMMAND.command, async () => {
+      return await deduplicator.run(
+        () => buildEmbeddings(foam.workspace, foam.embeddings),
+        () => {
+          vscode.window.showInformationMessage(
+            'Análise de notas já em andamento - aguardando conclusão'
+          );
+        }
+      );
+    })
   );
 }
 
@@ -44,7 +39,7 @@ async function buildEmbeddings(
   const notesCount = workspace.list().filter(r => r.type === 'note').length;
 
   if (notesCount === 0) {
-    vscode.window.showInformationMessage('No notes found in workspace');
+    vscode.window.showInformationMessage('Nenhuma nota encontrada no workspace');
     return 'complete';
   }
 
@@ -52,7 +47,7 @@ async function buildEmbeddings(
   return await vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Window,
-      title: 'Analyzing notes',
+      title: 'Analisando notas',
       cancellable: true,
     },
     async (progress, token) => {
@@ -67,23 +62,20 @@ async function buildEmbeddings(
         }, token);
 
         vscode.window.showInformationMessage(
-          `✓ Analyzed ${embeddings.size()} of ${notesCount} notes`
+          `✓ Analisadas ${embeddings.size()} de ${notesCount} notas`
         );
         return 'complete';
       } catch (error) {
         if (error instanceof CancellationError) {
           vscode.window.showInformationMessage(
-            'Analysis cancelled. Run the command again to continue where you left off.'
+            'Análise cancelada. Execute o comando novamente para continuar de onde parou.'
           );
           return 'cancelled';
         }
 
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-        vscode.window.showErrorMessage(
-          `Failed to analyze notes: ${errorMessage}`
-        );
+        vscode.window.showErrorMessage(`Falha ao analisar notas: ${errorMessage}`);
         return 'error';
       }
     }
