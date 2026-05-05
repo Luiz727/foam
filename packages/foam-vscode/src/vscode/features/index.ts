@@ -10,6 +10,7 @@ import janitor from './janitor';
 import ai from './ai';
 import whatsNew from './whats-new';
 import promptWorkshop from './prompt-workshop';
+import systemExplorer from './system-explorer';
 
 export const features: FoamFeature[] = [
   whatsNew,
@@ -23,4 +24,5 @@ export const features: FoamFeature[] = [
   janitor,
   ai,
   promptWorkshop,
+  systemExplorer,
 ];

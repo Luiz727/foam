@@ -27,6 +27,24 @@
     }
   },
   "contributes": {
+    "chatParticipants": [
+      {
+        "id": "foam-vscode.sistema",
+        "name": "sistema",
+        "fullName": "Foam Sistema",
+        "description": "Cria e consulta a estrutura de documentação do sistema (módulos, funções, páginas, backlog)",
+        "isSticky": false
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "foam-explorer",
+          "title": "Foam",
+          "icon": "assets/icon/foam-icon.svg"
+        }
+      ]
+    },
     "markdown.markdownItPlugins": true,
     "markdown.previewStyles": [
       "./static/preview/style.css"
@@ -55,6 +73,64 @@
       }
     ],
     "views": {
+      "foam-explorer": [
+        {
+          "id": "foam-vscode.quick-actions",
+          "name": "Ações Rápidas",
+          "icon": "$(home)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "id": "foam-vscode.system-explorer",
+          "name": "Sistema",
+          "icon": "$(list-tree)",
+          "contextualTitle": "Foam — Sistema"
+        },
+        {
+          "id": "foam-vscode.ai-panel",
+          "name": "Inteligência Artificial",
+          "icon": "$(sparkle)",
+          "contextualTitle": "Foam IA",
+          "when": "config.foam.experimental.ai"
+        },
+        {
+          "id": "foam-vscode.connections",
+          "name": "Conexões",
+          "icon": "$(references)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "id": "foam-vscode.tags-explorer",
+          "name": "Explorador de Tags",
+          "icon": "$(tag)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "id": "foam-vscode.notes-explorer",
+          "name": "Notas",
+          "icon": "$(notebook)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "id": "foam-vscode.orphans",
+          "name": "Notas Isoladas",
+          "icon": "$(debug-gripper)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "id": "foam-vscode.placeholders",
+          "name": "Placeholders",
+          "icon": "$(debug-disconnect)",
+          "contextualTitle": "Foam"
+        },
+        {
+          "when": "config.foam.experimental.ai",
+          "id": "foam-vscode.related-notes",
+          "name": "Notas Relacionadas (IA)",
+          "icon": "$(sparkle)",
+          "contextualTitle": "Foam"
+        }
+      ],
       "explorer": [
         {
           "id": "foam-vscode.connections",
@@ -96,6 +172,19 @@
       ]
     },
     "viewsWelcome": [
+      {
+        "view": "foam-vscode.quick-actions",
+        "contents": "## Foam — Gestão de Conhecimento\n\n[$(file-add) Nova Nota](command:foam-vscode.create-note)\n[$(calendar) Nota de Hoje](command:foam-vscode.open-daily-note)\n[$(graph) Mostrar Grafo](command:foam-vscode.show-graph)\n[$(search) Buscar por Tag](command:foam-vscode.search-tag)\n[$(random) Nota Aleatória](command:foam-vscode.open-random-note)\n[$(notebook) Nova Nota por Template](command:foam-vscode.create-note-from-template)"
+      },
+      {
+        "view": "foam-vscode.system-explorer",
+        "contents": "## Estrutura do Sistema\n\nNenhum item cadastrado ainda.\n\n[$(search) Lookup (Dendron-style)](command:foam-vscode.system-explorer.lookup)\n[$(add) Criar Item do Sistema](command:foam-vscode.system-explorer.create-item)\n[$(browser) Nova Página](command:foam-vscode.system-explorer.create-pagina)\n[$(package) Novo Módulo](command:foam-vscode.system-explorer.create-modulo)\n[$(symbol-method) Nova Função](command:foam-vscode.system-explorer.create-funcao)\n[$(tasklist) Novo Backlog](command:foam-vscode.system-explorer.create-backlog)\n[$(lightbulb) Nova Ideia](command:foam-vscode.system-explorer.create-ideia)"
+      },
+      {
+        "view": "foam-vscode.ai-panel",
+        "contents": "## Foam IA\n\n[$(sparkle) Abrir Prompt Workshop](command:foam-vscode.open-prompt-workshop)\n[$(references) Notas Similares](command:foam-vscode.show-similar-notes)\n[$(database) Construir Índice IA](command:foam-vscode.build-embeddings)\n[$(key) Configurar Chave OpenAI](command:foam-vscode.set-openai-key)",
+        "when": "config.foam.experimental.ai"
+      },
       {
         "view": "foam-vscode.tags-explorer",
         "contents": "Nenhuma tag encontrada. Notas que contêm tags aparecerão aqui. Você pode adicionar tags com uma hashtag (#tag) ou adicionando uma lista de tags no front matter (tags: tag1, tag2)."
@@ -152,6 +241,17 @@
         }
       ],
       "view/title": [
+        {
+          "command": "foam-vscode.system-explorer.lookup",
+          "when": "view == foam-vscode.system-explorer",
+          "group": "navigation"
+        },
+        {
+          "command": "foam-vscode.system-explorer.create-item",
+          "when": "view == foam-vscode.system-explorer",
+          "group": "navigation",
+          "icon": "$(add)"
+        },
         {
           "command": "foam-vscode.views.connections.show:backlinks",
           "when": "view == foam-vscode.connections && foam-vscode.views.connections.show == 'all links'",
@@ -341,6 +441,39 @@
       {
         "command": "foam-vscode.show-whats-new",
         "title": "Foam: Ver Novidades"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-item",
+        "title": "Foam: Criar Item do Sistema",
+        "icon": "$(add)"
+      },
+      {
+        "command": "foam-vscode.system-explorer.lookup",
+        "title": "Foam: Sistema Lookup"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-pagina",
+        "title": "Foam: Nova Página do Sistema"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-modulo",
+        "title": "Foam: Novo Módulo"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-funcao",
+        "title": "Foam: Nova Função / Feature"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-observacao",
+        "title": "Foam: Nova Observação"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-backlog",
+        "title": "Foam: Novo Item de Backlog"
+      },
+      {
+        "command": "foam-vscode.system-explorer.create-ideia",
+        "title": "Foam: Nova Ideia"
       },
       {
         "command": "foam-vscode.create-note",
