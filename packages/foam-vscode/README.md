@@ -1,23 +1,36 @@
 <div align="center">
 <img src="assets/icon/FOAM_ICON_256.png" width="100"/>
 
-# Foam for VSCode
+# Foam Pro
 
-[![Version](https://vsmarketplacebadges.dev/version/foam.foam-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)
-[![Downloads](https://vsmarketplacebadges.dev/downloads/foam.foam-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)
-[![Visual Studio Marketplace Installs](https://vsmarketplacebadges.dev/installs/foam.foam-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)
-[![Ratings](https://vsmarketplacebadges.dev/rating/foam.foam-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=foam.foam-vscode)
-[![Discord Chat](https://img.shields.io/discord/729975036148056075?color=748AD9&label=discord%20chat&style=flat-square)](https://foambubble.github.io/join-discord/g)
+Extensão local baseada no [Foam](https://foambubble.github.io/foam) com recursos adicionais de documentação de sistemas.
 
 </div>
 
-[Foam](https://foambubble.github.io/foam) is a note-taking tool that lives within VS Code, which means you can pair it with your favorite extensions for a great editing experience.
+Foam Pro é uma extensão para VS Code baseada no projeto open source Foam. Permite criar uma base de conhecimento pessoal local, em Markdown, com wikilinks, grafos de relacionamento entre notas e **Sistema Explorer** — um módulo para documentar a estrutura de sistemas de software com hierarquia estilo Dendron e integração com o chat do VS Code.
 
-Foam is open source, and allows you to create a local first, markdown based, personal knowledge base. You can also use it to publish your notes.
+## Recursos adicionais (Foam Pro)
 
-Foam is also meant to be extensible, so you can integrate with its internals to customize your knowledge base.
+### Sistema Explorer
 
-## Features
+Documente módulos, funções, páginas, backlog e ideias do seu sistema com hierarquia por pontos (`modulo.auth`, `funcao.auth.login`) diretamente no painel lateral.
+
+- TreeView hierárquico por tipo
+- Lookup estilo Dendron (`Ctrl+Shift+P` → `Foam: Sistema Lookup`)
+- Validação de front matter por tipo (painel Problemas)
+- Chat participant `@sistema` para criar estruturas via linguagem natural
+
+### @sistema (Chat do VS Code)
+
+```
+@sistema crie módulo de autenticação com funções login, logout e refresh-token
+@sistema quais funções existem no módulo pagamentos?
+@sistema status
+```
+
+---
+
+## Recursos base (Foam)
 
 ### Graph Visualization
 
