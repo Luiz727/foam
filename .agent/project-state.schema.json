@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://foam.local/schemas/project-state.schema.json",
+  "title": "Foam Project State",
+  "type": "object",
+  "required": [
+    "stateVersion",
+    "project",
+    "modules",
+    "tasks",
+    "decisions",
+    "risks",
+    "validationHistory",
+    "updatedAt"
+  ],
+  "properties": {
+    "stateVersion": {
+      "type": "string"
+    },
+    "project": {
+      "type": "object",
+      "required": ["name", "repository", "channel", "workflow", "status"],
+      "properties": {
+        "name": { "type": "string" },
+        "repository": { "type": "string" },
+        "channel": { "type": "string" },
+        "workflow": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "status": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "status", "updatedAt"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "string" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "decision", "rationale", "date"],
+        "properties": {
+          "id": { "type": "string" },
+          "decision": { "type": "string" },
+          "rationale": { "type": "string" },
+          "date": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "mitigation", "status"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "mitigation": { "type": "string" },
+          "status": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "validationHistory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "result", "timestamp"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "result": { "type": "string", "enum": ["pass", "fail"] },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

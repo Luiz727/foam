@@ -1,0 +1,57 @@
+{
+  "stateVersion": "1.0.0",
+  "project": {
+    "name": "foam",
+    "repository": "foambubble/foam",
+    "channel": "vscode-chat-github-copilot",
+    "workflow": "foam-agents",
+    "status": "active"
+  },
+  "modules": [
+    {
+      "id": "agents-foam-line",
+      "name": "Linha de agentes Foam",
+      "status": "implemented",
+      "notes": "Agentes, prompts, instrucoes e hooks duplicados para trilha dedicada"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "state-canonicalization",
+      "title": "Implantar estado canonico obrigatorio",
+      "status": "completed",
+      "updatedAt": "2026-05-09T12:00:00Z"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "tools-vs-mcp-mvp",
+      "decision": "MVP usa tools locais + estado em arquivo no workspace",
+      "rationale": "Escopo atual de repositorio unico e sessao local",
+      "date": "2026-05-09"
+    }
+  ],
+  "risks": [
+    {
+      "id": "state-not-updated",
+      "description": "Passos de execucao sem atualizar estado podem gerar divergencia",
+      "mitigation": "Regras obrigatorias no agente de execucao Foam e validacao no fechamento",
+      "status": "mitigated"
+    }
+  ],
+  "validationHistory": [
+    {
+      "id": "initial-state-created",
+      "description": "Arquivo de estado inicial criado",
+      "result": "pass",
+      "timestamp": "2026-05-09T00:00:00Z"
+    },
+    {
+      "id": "state-canonicalization-complete",
+      "description": "Fluxo Foam com estado canonico obrigatorio configurado",
+      "result": "pass",
+      "timestamp": "2026-05-09T12:00:00Z"
+    }
+  ],
+  "updatedAt": "2026-05-09T12:00:00Z"
+}
